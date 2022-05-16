@@ -1,0 +1,110 @@
+omega = 0.1;
+theta = 15 * 850 / (1000 * 60 * 60);
+beta = 4 * 60 * 60 * theta;
+delta = 1;
+
+type = "peak";
+err = 1;
+
+cr_f1 = zeros(3, 1);
+cr_b1 = zeros(3, 1);
+cr_t1 = zeros(3, 1);
+i = 1;
+
+for conf = [1 3 5]
+    fname = "data_" + type + "_w" + omega * delta + "_t" + theta * delta + "_b" + beta + "_c" + conf + "_e" + err + ".mat";
+    load(fname, "cr_ftp", "cr_bcs", "optcost");
+    
+    fname = "data_" + type + "_w" + omega * delta + "_t" + theta * delta + "_b" + beta + ".mat";
+    load(fname, "costtimer");
+    
+    cr_f1(i) = max([cr_ftp, 1]);
+    cr_b1(i) = max([cr_bcs, 1]);
+    cr_t1(i) = max([costtimer / optcost, 1]);
+    i = i + 1;
+end
+
+err = 2;
+
+cr_f2 = zeros(3, 1);
+cr_b2 = zeros(3, 1);
+i = 1;
+
+for conf = [1 3 5]
+    fname = "data_" + type + "_w" + omega * delta + "_t" + theta * delta + "_b" + beta + "_c" + conf + "_e" + err + ".mat";
+    load(fname, "cr_ftp", "cr_bcs", "optcost");
+    
+    cr_f2(i) = max([cr_ftp, 1]);
+    cr_b2(i) = max([cr_bcs, 1]);
+    i = i + 1;
+end
+
+err = 4;
+
+cr_f4 = zeros(3, 1);
+cr_b4 = zeros(3, 1);
+i = 1;
+
+for conf = [1 3 5]
+    fname = "data_" + type + "_w" + omega * delta + "_t" + theta * delta + "_b" + beta + "_c" + conf + "_e" + err + ".mat";
+    load(fname, "cr_ftp", "cr_bcs", "optcost");
+    
+    cr_f4(i) = max([cr_ftp, 1]);
+    cr_b4(i) = max([cr_bcs, 1]);
+    i = i + 1;
+end
+
+% Plot
+set(0, 'defaultfigurecolor', [1 1 1]);
+set(0, 'defaultaxesfontsize', 16);
+set(0, 'defaultaxesticklabelinterpreter', 'latex');
+set(0, 'defaulttextinterpreter', 'latex');
+set(0, 'defaultlegendfontsize', 16);
+set(0, 'defaultlegendinterpreter', 'latex');
+C = linspecer(5);
+
+figure;
+hold on;
+grid on;
+box on;
+set(gca, "XMinorTick", "on", "YMinorTick", "on");
+
+h = plot([1 4 8], cr_f1);
+set(h, "Color", C(1, :));
+set(h, "LineWidth", 1.5);
+set(h, "LineStyle", "--");
+
+h = plot([1 4 8], cr_b1);
+set(h, "Color", C(1, :));
+set(h, "LineWidth", 1.5);
+set(h, "LineStyle", "-");
+
+h = plot([1 4 8], cr_f2);
+set(h, "Color", C(2, :));
+set(h, "LineWidth", 1.5);
+set(h, "LineStyle", "--");
+
+h = plot([1 4 8], cr_b2);
+set(h, "Color", C(2, :));
+set(h, "LineWidth", 1.5);
+set(h, "LineStyle", "-");
+
+h = plot([1 4 8], cr_f4);
+set(h, "Color", C(4, :));
+set(h, "LineWidth", 1.5);
+set(h, "LineStyle", "--");
+
+h = plot([1 4 8], cr_b4);
+set(h, "Color", C(4, :));
+set(h, "LineWidth", 1.5);
+set(h, "LineStyle", "-");
+
+h = plot([1 4 8], cr_t1);
+set(h, "Color", C(5, :));
+set(h, "LineWidth", 1.5);
+set(h, "LineStyle", ":");
+
+xlabel("Confidence ($r$)");
+xlim([1 8]);
+ylabel("Competitive Ratio (CR)");
+legend("AP (type 1)", "ABCS (type 1)", "AP (type 21)", "ABCS (type 2)", "AP (type 3)", "ABCS (type 3)", "Timer");
